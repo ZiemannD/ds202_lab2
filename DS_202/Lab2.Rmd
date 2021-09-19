@@ -1,0 +1,78 @@
+---
+title: "Lab 2"
+author: "David Ziemann"
+date: "9/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+library(classdata)
+Percent <- as.numeric(choco$CocoaPercent)
+hist(Percent)
+boxplot(Percent)
+```
+Question 1: Most of the data comes from chocolate samples with a cocoa percentage of about 70%. Both the histogram and the boxplot show that most of the chocolates falls close to the mean value of approximately 70%. The boxplot shows that about half of the chocolate samples contain 60 to 80% cocoa. There are some potential outliers with around 100% cocoa and 40-50% cocoa.
+
+```{r}
+library(classdata)
+count <- table(choco$CountryBeanOrigin)
+first10 <- sort(count)
+first10 <- tail(first10, 10)
+barplot(first10, las = 2, cex.names = 0.7)
+```
+Question 2: I found that countries with a higher number of beans originating from them also had a higher number of ratings.
+
+```{r}
+library(classdata)
+choco$GroupPercent <- floor(choco$CocoaPercent/10)
+boxplot(Rating ~ GroupPercent, data = choco)
+tapply(choco$Rating, choco$GroupPercent, summary)
+```
+Question 3: I found that ratings do depend on cocoa percentage. After simplifying the cocoa percentage to the variable GroupPercent, I found both a boxplot and a statistical summary of it when compared to ratings. I found that the chocolates with a cocoa percentage of about 70% tended to have higher ratings. The mean value of ratings is highest for the chocolates with 70% cocoa.
+
+```{r}
+library(classdata)
+library(tidyverse)
+flavor <- table(choco$Characteristics1)
+length(flavor)
+flavor_filtered <- flavor[flavor > 50]
+choco_filtered <- filter(choco, Characteristics1 %in% 
+                           names(flavor_filtered))
+country_filtered <- table(choco$CountryBeanOrigin) %>% 
+  sort(decreasing = TRUE) %>%
+  head(10) 
+choco %>% 
+  filter(Characteristics1 %in% names(flavor_filtered)) %>% 
+  filter(CountryBeanOrigin %in% names(country_filtered)) %>% 
+  ggplot() +
+  geom_bar(aes(x = CountryBeanOrigin, fill = Characteristics1),
+           position = 'fill')  
+  coord_flip()
+  tapply(choco$Rating, choco$CountryBeanOrigin, summary) %>%
+    head(5)
+```
+Question 4: I decided to split the data up into smaller sections to make it more easily visualized. When alalyzing bean origin, I found that most of the flavors were distributed similarly. Excetions being Brazil having more creamy flavored chocolates and Venezuela having more intense flavored chocolates. Outside of those two instances, most of the tastes from the countries that I choose to view data from had a similar distribution when compared to the entire country's chocolate data.
+Using summary statistics, I found that beans from Brazil had the highest mean rating, but the other countries from my smaller sample were not very far behind. I think it is enough to say that beans from some places are better than others because there is enough of a difference in both the mean and median values from these countries.
+
+```{r}
+library(classdata)
+company <- table(choco$Company)
+Tencompanies <- sort(company)
+Tencompanies <- tail(Tencompanies, 10)
+barplot(Tencompanies, las = 2, cex.names = 0.7)
+tapply(choco$Rating, choco$Company, summary)
+
+ingredients <- table(choco$Ingredients)
+tapply(choco$Rating, choco$Ingredients, summary)
+Teningredients <- sort(ingredients)
+Teningredients <- tail(Teningredients, 10)
+barplot(Teningredients, las = 2, cex.names = 0.7)
+tapply(choco$Rating, choco$Ingredients, summary)
+```
+Question 5: My first analysis was comparing the number of ratings to each company. I decided to split the data up for my graph to make it easier to visualize. I found that most of the companies from that smaller list had about 20-30 ratings for their chocolates. The only potential outlier from that list was Soma, with over 50 ratings. 
+My second analysis was comparing the number of ratings with the individual ingredients specified in the data. I also had to split this data up to make it easier to see in a graphical format. I found that the ingredient 3- B,S,C was present in over 800 rated chocolates. I concluded that this ingredient was the most popular one and the summary statistics proved it was the highest rated with a mean value of 3.276. 
